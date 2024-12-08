@@ -10,7 +10,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Update the file path to include the output directory
+    # Append file path to output directory
     file_path = os.path.join(output_dir, file_name)
 
     # Default to current year and month if not provided
@@ -116,7 +116,7 @@ def convert_text_to_paths(svg_path):
     """Convert text in the SVG to paths."""
     path_svg_path = svg_path
     cairosvg.svg2svg(url=svg_path, write_to=path_svg_path)
-    print(f"Text converted to paths: {path_svg_path}")
+    print(f"Text converted to paths.")
 
 
 # CLI entry point

@@ -13,4 +13,4 @@ wheels/
 .venv
 
 # Output generated files
-output/*
+output/
