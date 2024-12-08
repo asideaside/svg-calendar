@@ -2,6 +2,8 @@ import os
 import calendar
 import datetime
 from svgwrite import Drawing
+import cairosvg
+
 
 def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calendar.svg", use_paths=False):
     # Ensure the output directory exists
@@ -26,7 +28,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
     cell_height = 40
     header_font_size = 58
     line_spacing = 60
-    day_font_size = 32
+    day_font_size = 30
     width = cell_width * 7
     height = cell_height * (len(month_days) + 2) + line_spacing + 20
 
@@ -42,7 +44,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
         font_size=header_font_size,
         font_family="serif",
         text_anchor="middle",
-        use_paths=use_paths,
+        use_paths=False,
     )
     y_offset += header_font_size + line_spacing
 
@@ -58,7 +60,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
             font_size=day_font_size,
             font_family="sans-serif",
             text_anchor="middle",
-            use_paths=use_paths,
+            use_paths=False,
         )
     
     # Add horizontal line under day headers
@@ -82,19 +84,24 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
                     (i * cell_width + cell_width / 2, y_offset + cell_height / 2),
                     font_size=day_font_size,
                     font_family="sans-serif",
-                    font_weight="300",
+                    font_weight="100",
                     text_anchor="middle",
-                    use_paths=use_paths,
+                    use_paths=False,
                 )
         y_offset += cell_height
 
     # Save SVG
     dwg.save()
+
+    # Convert text to paths if requested
+    if use_paths:
+        convert_text_to_paths(file_path)
+
     return file_path
 
 
 def add_text(dwg, text, insert, font_size=16, font_family="sans-serif", font_weight="normal", text_anchor="start", use_paths=False):
-    """Add text to the SVG, optionally converting it to a path."""
+    """Add text to the SVG."""
     dwg.add(dwg.text(
         text,
         insert=insert,
@@ -103,6 +110,13 @@ def add_text(dwg, text, insert, font_size=16, font_family="sans-serif", font_wei
         font_weight=font_weight,
         text_anchor=text_anchor,
     ))
+
+
+def convert_text_to_paths(svg_path):
+    """Convert text in the SVG to paths."""
+    path_svg_path = svg_path.replace(".svg", "_paths.svg")
+    cairosvg.svg2svg(url=svg_path, write_to=path_svg_path)
+    print(f"Text converted to paths: {path_svg_path}")
 
 
 # CLI entry point
