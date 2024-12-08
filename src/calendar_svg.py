@@ -5,7 +5,7 @@ from svgwrite import Drawing
 import cairosvg
 
 
-def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calendar.svg", use_paths=False):
+def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calendar.svg", as_text=False):
     # Ensure the output directory exists
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
@@ -28,7 +28,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
     cell_height = 40
     header_font_size = 58
     line_spacing = 60
-    day_font_size = 30
+    day_font_size = 32
     width = cell_width * 7
     height = cell_height * (len(month_days) + 2) + line_spacing + 20
 
@@ -44,7 +44,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
         font_size=header_font_size,
         font_family="serif",
         text_anchor="middle",
-        use_paths=False,
+        as_text=as_text,
     )
     y_offset += header_font_size + line_spacing
 
@@ -60,7 +60,7 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
             font_size=day_font_size,
             font_family="sans-serif",
             text_anchor="middle",
-            use_paths=False,
+            as_text=as_text,
         )
     
     # Add horizontal line under day headers
@@ -84,23 +84,23 @@ def generate_calendar_svg(year=None, month=None, start_day=0, file_name="calenda
                     (i * cell_width + cell_width / 2, y_offset + cell_height / 2),
                     font_size=day_font_size,
                     font_family="sans-serif",
-                    font_weight="100",
+                    font_weight="300",
                     text_anchor="middle",
-                    use_paths=False,
+                    as_text=as_text,
                 )
         y_offset += cell_height
 
     # Save SVG
     dwg.save()
 
-    # Convert text to paths if requested
-    if use_paths:
+    # Convert text to paths unless --as-text is specified
+    if not as_text:
         convert_text_to_paths(file_path)
 
     return file_path
 
 
-def add_text(dwg, text, insert, font_size=16, font_family="sans-serif", font_weight="normal", text_anchor="start", use_paths=False):
+def add_text(dwg, text, insert, font_size=16, font_family="sans-serif", font_weight="normal", text_anchor="start", as_text=True):
     """Add text to the SVG."""
     dwg.add(dwg.text(
         text,
@@ -114,7 +114,7 @@ def add_text(dwg, text, insert, font_size=16, font_family="sans-serif", font_wei
 
 def convert_text_to_paths(svg_path):
     """Convert text in the SVG to paths."""
-    path_svg_path = svg_path.replace(".svg", "_paths.svg")
+    path_svg_path = svg_path
     cairosvg.svg2svg(url=svg_path, write_to=path_svg_path)
     print(f"Text converted to paths: {path_svg_path}")
 
@@ -128,8 +128,8 @@ if __name__ == "__main__":
     parser.add_argument("--month", type=int, help="Month of the calendar (default: current month).")
     parser.add_argument("--start-day", type=int, default=0, help="Starting day of the week (0=Monday, 6=Sunday).")
     parser.add_argument("--output", type=str, default="calendar.svg", help="Output file name.")
-    parser.add_argument("--use-paths", action="store_true", help="Convert text to curves (paths).")
+    parser.add_argument("--as-text", action="store_true", help="Keep text as normal text tags (default is to convert to paths).")
 
     args = parser.parse_args()
-    file_path = generate_calendar_svg(args.year, args.month, args.start_day, args.output, args.use_paths)
+    file_path = generate_calendar_svg(args.year, args.month, args.start_day, args.output, args.as_text)
     print(f"SVG calendar saved as {file_path}")
