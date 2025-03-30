@@ -14,3 +14,6 @@ wheels/
 
 # Output generated files
 output/
+
+# Allow fonts directory
+!fonts/
